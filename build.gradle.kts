@@ -159,7 +159,7 @@ tasks {
         relocate("com.typesafe")
         relocate("com.vdurmont")
         relocate("javassist")
-        relocate("dev.kord")
+        //relocate("dev.kord")
         relocate("dev.vankka")
         relocate("io.ktor")
         relocate("io.sentry")
