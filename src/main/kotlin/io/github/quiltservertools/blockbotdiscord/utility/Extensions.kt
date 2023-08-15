@@ -21,7 +21,7 @@ fun Message.summary(): String {
     return this.content
 }
 
-fun GameProfile.getTextures() = Iterables.getFirst(this.properties.get("textures"), null)?.value
+fun GameProfile.getTextures() = Iterables.getFirst(this.properties.get("textures"), null)?.value()
 
 fun Component.toNative(): MutableText = Text.Serializer.fromJson(GsonComponentSerializer.gson().serialize(this))?: Text.empty()
 
