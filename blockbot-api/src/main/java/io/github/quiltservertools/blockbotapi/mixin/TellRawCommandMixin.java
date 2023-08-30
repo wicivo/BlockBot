@@ -24,9 +24,10 @@ public abstract class TellRawCommandMixin {
         method = "method_13777",
         at = @At(value = "HEAD")
     )
-    private static void relayMeToDiscord(CommandContext<ServerCommandSource> context, CallbackInfoReturnable<Integer> cir) throws CommandSyntaxException {
-        // Check if tellraw is sent to every online player
-        if (context.getArgument("targets", EntitySelector.class).getLimit() > 1 && EntityArgumentType.getPlayers(context, "targets").size() == context.getSource().getPlayerNames().size()) {
+    private static void relayTellrawToDiscord(CommandContext<ServerCommandSource> context, CallbackInfoReturnable<Integer> cir) throws CommandSyntaxException {
+        // We are checking for "@a " to make sure only messages intended for the public are relayed.
+        // Messages with a selector like @a[distance=..100] should stay private.
+        if (context.getInput().replace("tellraw ", "").startsWith("@a ")) {
             var entity = context.getSource().getEntity();
             MessageSender sender;
             if (entity instanceof ServerPlayerEntity player) {
