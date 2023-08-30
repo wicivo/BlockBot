@@ -367,7 +367,7 @@ class BlockBotApiExtension : Extension(), Bot {
                     icon = config.getWebhookChatRelayAvatar(player.gameProfile)
                 }
                 footer {
-                    text = advancement.display!!.description.string
+                    text = advancement.display.map { it.description }.orElse(Text.empty()).string
                 }
                 color = Colors.blue
             }
