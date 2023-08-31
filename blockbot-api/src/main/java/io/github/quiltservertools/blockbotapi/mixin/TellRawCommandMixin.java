@@ -1,12 +1,11 @@
 package io.github.quiltservertools.blockbotapi.mixin;
 
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.context.ParsedCommandNode;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.github.quiltservertools.blockbotapi.event.ChatMessageEvent;
 import io.github.quiltservertools.blockbotapi.sender.MessageSender;
 import io.github.quiltservertools.blockbotapi.sender.PlayerMessageSender;
-import net.minecraft.command.EntitySelector;
-import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.command.argument.TextArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.command.TellRawCommand;
@@ -25,9 +24,11 @@ public abstract class TellRawCommandMixin {
         at = @At(value = "HEAD")
     )
     private static void relayTellrawToDiscord(CommandContext<ServerCommandSource> context, CallbackInfoReturnable<Integer> cir) throws CommandSyntaxException {
-        // We are checking for "@a " to make sure only messages intended for the public are relayed.
-        // Messages with a selector like @a[distance=..100] should stay private.
-        if (context.getInput().replace("tellraw ", "").startsWith("@a ")) {
+        // We are checking for "@a" to make sure only messages intended for the public are relayed.
+        // Messages with a selector like @a[distance=..100] should not be relayed.
+        String input = context.getInput();
+        ParsedCommandNode<ServerCommandSource> parsedCommandNode = context.getNodes().get(context.getNodes().size() - 2);
+        if (parsedCommandNode.getRange().get(input).equals("@a")) {
             var entity = context.getSource().getEntity();
             MessageSender sender;
             if (entity instanceof ServerPlayerEntity player) {
