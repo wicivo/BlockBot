@@ -12,7 +12,7 @@ import io.github.quiltservertools.blockbotapi.sender.PlayerMessageSender
 import io.github.quiltservertools.blockbotdiscord.utility.getTextures
 import io.github.quiltservertools.blockbotdiscord.utility.literal
 import io.github.quiltservertools.blockbotdiscord.utility.summary
-import net.minecraft.advancement.Advancement
+import net.minecraft.advancement.AdvancementDisplay
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.MutableText
@@ -95,11 +95,11 @@ fun Config.formatPlayerDeathMessage(player: ServerPlayerEntity, message: Text): 
         mapOf("message" to message)
     ).string
 
-fun Config.formatPlayerAdvancementMessage(player: ServerPlayerEntity, advancement: Advancement): String =
+fun Config.formatPlayerAdvancementMessage(player: ServerPlayerEntity, advancementDisplay: AdvancementDisplay): String =
     formatDiscordRelayMessage(
         player,
         config[ChatRelaySpec.DiscordMessageFormatSpec.playerAdvancement],
-        mapOf("advancement" to advancement.display.map { it.title }.orElse(Text.empty()))
+        mapOf("advancement" to advancementDisplay.title)
     ).string
 
 fun Config.formatServerStartMessage(server: MinecraftServer): String =

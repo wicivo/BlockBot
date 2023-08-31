@@ -45,7 +45,7 @@ import net.fabricmc.fabric.api.networking.v1.PacketSender
 import net.kyori.adventure.text.KeybindComponent
 import net.kyori.adventure.text.TranslatableComponent
 import net.fabricmc.loader.api.FabricLoader
-import net.minecraft.advancement.Advancement
+import net.minecraft.advancement.AdvancementDisplay
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.nbt.NbtList
@@ -358,16 +358,16 @@ class BlockBotApiExtension : Extension(), Bot {
         }
     }
 
-    override fun onAdvancementGrant(player: ServerPlayerEntity, advancement: Advancement) {
-        if (config.formatPlayerAdvancementMessage(player, advancement).isEmpty() || player.isVanished()) return
+    override fun onAdvancementGrant(player: ServerPlayerEntity, advancementDisplay: AdvancementDisplay) {
+        if (config.formatPlayerAdvancementMessage(player, advancementDisplay).isEmpty() || player.isVanished()) return
         BlockBotDiscord.launch {
             createDiscordEmbed {
                 author {
-                    name = config.formatPlayerAdvancementMessage(player, advancement)
+                    name = config.formatPlayerAdvancementMessage(player, advancementDisplay)
                     icon = config.getWebhookChatRelayAvatar(player.gameProfile)
                 }
                 footer {
-                    text = advancement.display.map { it.description }.orElse(Text.empty()).string
+                    text = advancementDisplay.description.string
                 }
                 color = Colors.blue
             }
