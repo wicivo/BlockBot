@@ -91,7 +91,7 @@ class BlockBotApiExtension : Extension(), Bot {
             check { failIfNot(config.getChannelsBi().containsValue(event.message.channelId.value)) }
 
             action {
-                val sender = event.message.getAuthorAsMember()!!
+                val sender = event.message.getAuthorAsMemberOrNull()!!
                 val configChannel = config.getChannelsBi().inverse()[event.message.channelId.value]!!
                 val result = RelayMessageEvent.EVENT.invoker().message(
                     RelayMessageSender(
@@ -201,7 +201,7 @@ class BlockBotApiExtension : Extension(), Bot {
                             x += stepSize
                         }
 
-                        list.add(NbtString.of(Text.Serializer.toJson(text)))
+                        list.add(NbtString.of(Text.Serialization.toJsonString(text)))
                         y += stepSize
                         x = 0
                     }

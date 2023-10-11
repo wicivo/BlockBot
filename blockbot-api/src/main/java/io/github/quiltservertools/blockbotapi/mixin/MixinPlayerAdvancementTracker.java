@@ -2,8 +2,8 @@ package io.github.quiltservertools.blockbotapi.mixin;
 
 import io.github.quiltservertools.blockbotapi.event.PlayerAdvancementGrantEvent;
 import net.minecraft.advancement.AdvancementDisplay;
+import net.minecraft.advancement.AdvancementEntry;
 import net.minecraft.advancement.PlayerAdvancementTracker;
-import net.minecraft.class_8779;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -23,7 +23,7 @@ public abstract class MixinPlayerAdvancementTracker {
             target = "Lnet/minecraft/server/PlayerManager;broadcast(Lnet/minecraft/text/Text;Z)V"
         )
     )
-    public void announceAdvancement(class_8779 arg, AdvancementDisplay advancementDisplay, CallbackInfo ci) {
+    public void announceAdvancement(AdvancementEntry arg, AdvancementDisplay advancementDisplay, CallbackInfo ci) {
         PlayerAdvancementGrantEvent.EVENT.invoker().onAdvancementGrant(owner, advancementDisplay);
     }
 }
