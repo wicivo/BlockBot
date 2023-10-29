@@ -30,7 +30,7 @@ public abstract class PlayerManagerMixin {
 
     @Inject(method = "checkCanJoin", at = @At("HEAD"), cancellable = true)
     private void enforceAccountLinking(SocketAddress address, GameProfile profile, CallbackInfoReturnable<Text> cir) {
-        if (whitelistEnabled && whitelist.isAllowed(profile)) return;
+        if (whitelistEnabled && !whitelist.isAllowed(profile)) return;
 
         var message = LinkingExtensionKt.canJoin(profile, server);
         if (message != null) {
