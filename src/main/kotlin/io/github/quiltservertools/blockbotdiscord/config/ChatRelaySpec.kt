@@ -1,5 +1,6 @@
 package io.github.quiltservertools.blockbotdiscord.config
 
+import com.google.gson.JsonParser
 import com.mojang.authlib.GameProfile
 import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.ConfigSpec
@@ -12,12 +13,14 @@ import io.github.quiltservertools.blockbotapi.sender.PlayerMessageSender
 import io.github.quiltservertools.blockbotdiscord.utility.getTextures
 import io.github.quiltservertools.blockbotdiscord.utility.literal
 import io.github.quiltservertools.blockbotdiscord.utility.summary
+import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.advancement.AdvancementDisplay
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.MutableText
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
+import java.util.*
 
 object ChatRelaySpec : ConfigSpec() {
     val allowMentions by required<Boolean>()
@@ -55,8 +58,11 @@ object ChatRelaySpec : ConfigSpec() {
         val webhookName by required<String>()
         val webhookAvatar by required<String>()
         val playerAvatarUrl by required<String>()
+        val tailorAvatarUrl by required<String>()
     }
 }
+
+val usingFabricTailor: Boolean = FabricLoader.getInstance().isModLoaded("fabrictailor")
 
 fun Config.formatDiscordMessage(sender: MessageSender, message: String): String =
     formatDiscordRelayMessage(sender, message, config[ChatRelaySpec.DiscordMessageFormatSpec.messageFormat])
@@ -188,13 +194,30 @@ fun Config.getReplyMsg(
     ), PlaceholderContext.of(server)
 )
 
-fun Config.getWebhookChatRelayAvatar(gameProfile: GameProfile): String =
-    Placeholders.parseText(
+fun Config.getWebhookChatRelayAvatar(gameProfile: GameProfile): String {
+    val textures = gameProfile.getTextures()
+
+    if (usingFabricTailor && textures != null) {
+        // FabricTailor is active, use its textures
+        val decode = JsonParser.parseString(String(Base64.getDecoder().decode(textures)))
+        val skinUrl = decode.asJsonObject.get("textures").asJsonObject.get("SKIN").asJsonObject.get("url").asString
+
+        return Placeholders.parseText(
+            this[ChatRelaySpec.WebhookSpec.tailorAvatarUrl].literal(),
+            Placeholders.ALT_PLACEHOLDER_PATTERN_CUSTOM,
+            mapOf(
+                "texture" to skinUrl.split("/").last().literal()
+            )
+        ).string
+    }
+
+    return Placeholders.parseText(
         this[ChatRelaySpec.WebhookSpec.playerAvatarUrl].literal(),
         Placeholders.ALT_PLACEHOLDER_PATTERN_CUSTOM,
         mapOf(
             "uuid" to gameProfile.id.toString().literal(),
             "username" to gameProfile.name.literal(),
-            "texture" to (gameProfile.getTextures()?.literal() ?: Text.empty())
+            "texture" to (textures?.literal() ?: "".literal())
         )
     ).string
+}
